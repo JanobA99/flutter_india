@@ -11,23 +11,33 @@ class DatabaseService {
     });
   }
 
-  Future<void> addMarkData(Map quizData, String quizId) async {
+  Future<void> addMarkData(Map quizData, String id) async {
     await Firestore.instance
         .collection("Mark")
-        .document(quizId)
+        .document(id)
         .setData(quizData)
         .catchError((e) {
       print(e.toString());
     });
   }
 
-  Future<void> addData(blogData) async {
-    Firestore.instance.collection("blogs").add(blogData).catchError((e) {
-      print(e);
+  Future<void> addData2(Map quizData, String id, String id2) async {
+    await Firestore.instance
+        .collection("Mark")
+        .document(id)
+         .collection("Data")
+        .document(id2)
+        .setData(quizData)
+        .catchError((e) {
+      print(e.toString());
     });
   }
 
   getData() async {
+    return  Firestore.instance.collection("Mark").snapshots();
+  }
+
+  getData2() async {
     return  Firestore.instance.collection("Mark").snapshots();
   }
 }

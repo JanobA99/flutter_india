@@ -23,6 +23,7 @@ class _CreateQuizState extends State<CreateQuiz> {
 
   createQuizOnline() async {
     description=_controller.text;
+    if (_formKey.currentState.validate()) {
       setState(() {
         _isLoading = true;
       });
@@ -45,6 +46,7 @@ class _CreateQuizState extends State<CreateQuiz> {
               ));
         });
       });
+    }
     }
 
 
@@ -108,7 +110,7 @@ class _CreateQuizState extends State<CreateQuiz> {
                               createQuizOnline();
                             },
                             child: blueButton(
-                                context: context, label: "Create Quiz")),
+                                context: context, label: "Submit")),
                       ],
                     ),
                   ),

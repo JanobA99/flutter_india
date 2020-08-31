@@ -9,7 +9,7 @@ import 'package:flutter_india/service/firs_wiev.dart';
 import 'package:flutter_india/service/userInfo.dart';
 import 'package:flutter_india/service/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:flutter_india/DataScreen.dart';
 import 'create_mark.dart';
 
 Future main() async {
@@ -151,7 +151,7 @@ class _HomeState extends State<Home> {
                   physics: BouncingScrollPhysics(),
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (context, index) {
-                    return QuizTile(
+                    return Tile(
                       description: snapshot
                           .data.documents[index].data["Description"],
                       title: snapshot.data.documents[index].data["Title"],
@@ -285,11 +285,11 @@ class OvalRightBorderClipper extends CustomClipper<Path> {
 
 }
 
-class QuizTile extends StatelessWidget {
+class Tile extends StatelessWidget {
   final String title;
   final String description;
   final String quizId;
-  QuizTile(
+  Tile(
       {@required this.title,
         @required this.description,
         @required this.quizId});
@@ -300,7 +300,7 @@ class QuizTile extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CreateQuiz(),
+              builder: (context) => DateScreen(id: quizId),
             ));
       },
       child: Container(
