@@ -4,7 +4,7 @@ import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart' show SpinKitDoubleBounce;
 import 'package:flutter_india/service/auth.dart';
 import 'package:flutter_india/service/provider_widget.dart';
-import 'package:flutter_india/service/userInfo.dart';
+
 final primaryColor = const Color(0xFF75A2EA);
 enum AuthFormType { signIn, signUp, reset, anonymous, convert }
 bool signed = true;

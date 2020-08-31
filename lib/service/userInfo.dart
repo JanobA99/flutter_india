@@ -5,8 +5,9 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter_india/service//database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:random_string/random_string.dart';
+import 'package:flutter_progress_button/flutter_progress_button.dart';
 
 class UserInfo extends StatefulWidget {
   @override
@@ -185,9 +186,9 @@ textField.add(Center(
                   child: Text('Upload Image'),
                   onPressed: () async {
                     var image = await ImagePickerGC.pickImage(
-                      imageQuality: 70,
-                      maxHeight: 1280,
-                      maxWidth: 866,
+                      imageQuality: 40,
+                      maxHeight: 800,
+                      maxWidth: 400,
                       context: context,
                       source: ImgSource.Both,
                       cameraIcon: Icon(
@@ -213,28 +214,44 @@ textField.add(Center(
     textField.add(SizedBox(
       height: 8.0,
     ));
-    textField.add(RaisedButton(
-      child: Text("Confirm"),
-      onPressed: ()  async {
-        print(_username);
-        print(_phone);
-        print(_email);
-        final form = formKey.currentState;
-        if (form.validate())  {
-          Map<String, String> infoMap = {
-            "Name": _username,
-            "House Name" : _hName,
-            "Place": _place,
-            "District": _district,
-            "Phone Number": _phone,
-            "WhatsApp": _whatsApp,
-            "Date of Birth": _date,
-          };
-          await databaseService.addInfoData(infoMap, _email);
-          Navigator.of(context).pushReplacementNamed('/home');
+    textField.add(
+      ProgressButton(
+        defaultWidget: const Text('I am a button'),
+        progressWidget: const CircularProgressIndicator(),
+        width: 196,
+        height: 40,
+        onPressed: () async {
+            print(_username);
+            print(_phone);
+            print(_email);
+            final form = formKey.currentState;
+            if (form.validate()) {
+              StorageReference firebaseStorageRef = FirebaseStorage.instance
+                  .ref()
+                  .child("blogListImage")
+                  .child("${randomAlphaNumeric(9)}.png");
+              final StorageUploadTask task = firebaseStorageRef.putFile(
+                  _image);
+
+              var downloadUrl = await (await task.onComplete).ref
+                  .getDownloadURL();
+              print("this is url $downloadUrl");
+              Map<String, String> infoMap = {
+                "Name": _username,
+                "House Name": _hName,
+                "Place": _place,
+                "District": _district,
+                "Phone Number": _phone,
+                "WhatsApp": _whatsApp,
+                "Date of Birth": _date,
+                "Image Url": downloadUrl,
+              };
+              await databaseService.addInfoData(infoMap, _email);
+              Navigator.of(context).pushReplacementNamed('/home');
+            }
         }
-      },
-    ));
+      )
+      );
     // add email & password
     return textField;
   }
