@@ -10,6 +10,8 @@ import 'package:flutter_india/service/userInfo.dart';
 import 'package:flutter_india/service/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'create_mark.dart';
+
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
@@ -70,6 +72,16 @@ class _HomeState extends State<Home> {
   Stream quizStream;
   DatabaseService databaseService = new DatabaseService();
 
+  @override
+  void initState() {
+    databaseService.getData().then((val) {
+      setState(() {
+        quizStream = val;
+      });
+    });
+    super.initState();
+  }
+
 
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
   final Color primary = Colors.white;
@@ -77,11 +89,10 @@ class _HomeState extends State<Home> {
   final Color divider = Colors.grey.shade600;
   final firestoreInstance = Firestore.instance;
 
-  String  usernameF, hName, place, district, phone, whatsApp, date, ImageUrl;
+  String  usernameF, hName, place, district, phone, whatsApp, date, imageUrl;
   void _onPressed() async{
     var firebaseUser = await FirebaseAuth.instance.currentUser();
     firestoreInstance.collection("User").document(firebaseUser.email).get().then((value){
-      print(value.data["Place"]);
       setState(() {
      place = value.data["Place"];
      usernameF = value.data["Name"];
@@ -90,7 +101,7 @@ class _HomeState extends State<Home> {
      phone = value.data["Phone Number"];
      whatsApp = value.data["WhatsApp"];
      date = value.data["Date of Birth"];
-     ImageUrl = value.data["Image Url"];
+     imageUrl = value.data["Image Url"];
       });
     });
   }
@@ -100,7 +111,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       key: _key,
       appBar: AppBar(
-        title: Text('Ligh Drawer Navigation'),
+        title: Text('Notification'),
         actions: [
           IconButton(
             icon: Icon(
@@ -129,7 +140,35 @@ class _HomeState extends State<Home> {
         ),
       ),
       drawer: _buildDrawer(),
-      body: Container(),
+      body: Container(
+          margin: EdgeInsets.symmetric(horizontal: 12),
+          child: StreamBuilder(
+            stream: quizStream,
+            builder: (context, snapshot) {
+              return snapshot.data == null
+                  ? Container()
+                  : ListView.builder(
+                  physics: BouncingScrollPhysics(),
+                  itemCount: snapshot.data.documents.length,
+                  itemBuilder: (context, index) {
+                    return QuizTile(
+                      description: snapshot
+                          .data.documents[index].data["Description"],
+                      title: snapshot.data.documents[index].data["Title"],
+                      quizId: snapshot.data.documents[index].data["Id"],
+                    );
+                  });
+            },
+          ),
+        ),
+     floatingActionButton: FloatingActionButton(
+       child: Icon(Icons.add),
+       onPressed: () {
+         Navigator.push(context, MaterialPageRoute(
+           builder: (context) => CreateQuiz(),
+         ));
+       },
+     ),
     );
   }
   _buildDrawer() {
@@ -166,7 +205,7 @@ class _HomeState extends State<Home> {
                           colors: [Colors.orange, Colors.deepOrange])),
                   child: CircleAvatar(
                     radius: 40,
-                    backgroundImage: ImageUrl!=null ? NetworkImage(ImageUrl) : NetworkImage("https://www.publicdomainpictures.net/pictures/270000/velka/avatar-people-person-business-.jpg"),
+                    backgroundImage: imageUrl!=null ? NetworkImage(imageUrl) : NetworkImage("https://www.publicdomainpictures.net/pictures/270000/velka/avatar-people-person-business-.jpg"),
                   ),
                 ),
                 SizedBox(height: 5.0),
@@ -184,7 +223,7 @@ class _HomeState extends State<Home> {
                 _buildDivider(),
                 _buildRow(Icons.place, "District: $district",),
                 _buildDivider(),
-                _buildRow(Icons.phone_android, "Phone Number: $phone",),
+                _buildRow(Icons.phone_android, "Phone: $phone",),
                 _buildDivider(),
                 _buildRow(Icons.phone, "WhatsApp: $whatsApp",),
                 _buildDivider(),
@@ -208,7 +247,7 @@ class _HomeState extends State<Home> {
     final TextStyle tStyle = TextStyle(color: active, fontSize: 16.0);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: Row(children: [
+      child: SingleChildScrollView( child: Row(children: [
         Icon(
           icon,
           color: active,
@@ -218,31 +257,8 @@ class _HomeState extends State<Home> {
           title,
           style: tStyle,
         ),
-        Spacer(),
-        if (showBadge)
-          Material(
-            color: Colors.deepOrange,
-            elevation: 5.0,
-            shadowColor: Colors.red,
-            borderRadius: BorderRadius.circular(5.0),
-            child: Container(
-              width: 25,
-              height: 25,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.deepOrange,
-                borderRadius: BorderRadius.circular(5.0),
-              ),
-              child: Text(
-                "10+",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-          )
       ]),
+      )
     );
   }
   }
@@ -267,4 +283,64 @@ class OvalRightBorderClipper extends CustomClipper<Path> {
     return true;
   }
 
+}
+
+class QuizTile extends StatelessWidget {
+  final String title;
+  final String description;
+  final String quizId;
+  QuizTile(
+      {@required this.title,
+        @required this.description,
+        @required this.quizId});
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CreateQuiz(),
+            ));
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 8, top: 8),
+        height: 150,
+        child: Stack(
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(9),
+                  color: Colors.blue),
+              alignment: Alignment.center,
+              child: SingleChildScrollView(child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    title,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 17.0,
+                        fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    height: 9,
+                  ),
+                  Text(
+                    description,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w400),
+                  ),
+                ],
+              ),
+              )
+            )
+          ],
+        ),
+      ),
+    );
+  }
 }

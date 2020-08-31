@@ -41,6 +41,7 @@
     flutter_progress_button: ^1.0.0
     flutter_custom_clippers: ^1.1.1
     firebase_database: ^3.1.6
+    auto_size_text_field: ^0.1.5
   dev_dependencies:
     flutter_test:
       sdk: flutter
