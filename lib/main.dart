@@ -8,9 +8,10 @@ import 'package:flutter_india/service/sign_up.dart';
 import 'package:flutter_india/service/firs_wiev.dart';
 import 'package:flutter_india/service/userInfo.dart';
 import 'package:flutter_india/service/database.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
@@ -69,21 +70,31 @@ class _HomeState extends State<Home> {
   Stream quizStream;
   DatabaseService databaseService = new DatabaseService();
 
-  @override
-  void initState() {
-    print(emailF);
-    databaseService.getQuizData(emailF).then((val) {
-      setState(() {
-        quizStream = val;
-      });
-    });
-    super.initState();
-  }
 
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
   final Color primary = Colors.white;
   final Color active = Colors.grey.shade800;
   final Color divider = Colors.grey.shade600;
+  final firestoreInstance = Firestore.instance;
+
+  String  usernameF, hName, place, district, phone, whatsApp, date, ImageUrl;
+  void _onPressed() async{
+    var firebaseUser = await FirebaseAuth.instance.currentUser();
+    firestoreInstance.collection("User").document(firebaseUser.email).get().then((value){
+      print(value.data["Place"]);
+      setState(() {
+     place = value.data["Place"];
+     usernameF = value.data["Name"];
+     hName = value.data["House Name"];
+     district = value.data["District"];
+     phone = value.data["Phone Number"];
+     whatsApp = value.data["WhatsApp"];
+     date = value.data["Date of Birth"];
+     ImageUrl = value.data["Image Url"];
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,6 +123,7 @@ class _HomeState extends State<Home> {
         leading: IconButton(
           icon: Icon(Icons.menu),
           onPressed: () {
+            _onPressed();
             _key.currentState.openDrawer();
           },
         ),
@@ -130,62 +142,56 @@ class _HomeState extends State<Home> {
               color: primary, boxShadow: [BoxShadow(color: Colors.black45)]),
           width: 300,
           child: SafeArea(
-          child: StreamBuilder(
-                stream: quizStream,
-                builder: (context, snapshot) {
-    return snapshot.data == null ? Container()
-        : SingleChildScrollView(
-             child: Column(
-             children: <Widget>[
-             Container(
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Container(
                   alignment: Alignment.centerRight,
                   child: IconButton(
                     icon: Icon(
-                     Icons.power_settings_new,
-                        color: active,
-                     ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                 },
-                 ),
-                 ),
-                    Container(
-                       height: 90,
-                             alignment: Alignment.center,
-                         decoration: BoxDecoration(
-                       shape: BoxShape.circle,
-                         gradient: LinearGradient(
-                        colors: [Colors.orange, Colors.deepOrange])),
-                       child: CircleAvatar(
-                            radius: 40,
-                             backgroundImage: imageF!=null ? FileImage(imageF) : NetworkImage("https://www.publicdomainpictures.net/pictures/270000/velka/avatar-people-person-business-.jpg"),
-                                       ),
-                                      ),
-                                        SizedBox(height: 5.0),
-                                                Text(
-                               "House Name: ${snapshot.data["House Name"]}",
-                                 style: TextStyle(
-                                color: Colors.black,
-                            fontSize: 18.0,
-                              fontWeight: FontWeight.w600),
-                                ),
+                      Icons.power_settings_new,
+                      color: active,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+                Container(
+                  height: 90,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                          colors: [Colors.orange, Colors.deepOrange])),
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundImage: ImageUrl!=null ? NetworkImage(ImageUrl) : NetworkImage("https://www.publicdomainpictures.net/pictures/270000/velka/avatar-people-person-business-.jpg"),
+                  ),
+                ),
+                SizedBox(height: 5.0),
+                Text(
+                  "$usernameF",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w600),
+                ),
                 SizedBox(height: 30.0),
-                    _buildRow(Icons.home,  "House Name: ${snapshot.data["House Name"]}",),
-                          _buildDivider(),
-                               _buildRow(Icons.place, "Place: ${snapshot.data["House Name"]}",),
-                  _buildDivider(),
-                         _buildRow(Icons.place, "District: ${snapshot.data["House Name"]}",),
-                         _buildDivider(),
-                         _buildRow(Icons.phone_android, "Phone Number:${snapshot.data["House Name"]}",),
-                       _buildDivider(),
-                          _buildRow(Icons.phone, "WhatsApp:${snapshot.data["House Name"]}",),
-                      _buildDivider(),
-                              _buildRow(Icons.date_range, "Date of Birth: ${snapshot.data["House Name"]}"),
-                              _buildDivider(),
-    ],
-    ),
-    );
-    }
+                _buildRow(Icons.home,  "House Name: $hName",),
+                _buildDivider(),
+                _buildRow(Icons.place, "Place: $place",),
+                _buildDivider(),
+                _buildRow(Icons.place, "District: $district",),
+                _buildDivider(),
+                _buildRow(Icons.phone_android, "Phone Number: $phone",),
+                _buildDivider(),
+                _buildRow(Icons.phone, "WhatsApp: $whatsApp",),
+                _buildDivider(),
+                _buildRow(Icons.date_range, "Date of Birth: $date"),
+                _buildDivider(),
+              ],
+            ),
           )
         ),
       ),
@@ -239,7 +245,8 @@ class _HomeState extends State<Home> {
       ]),
     );
   }
-}
+  }
+
 
 class OvalRightBorderClipper extends CustomClipper<Path> {
   @override

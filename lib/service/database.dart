@@ -17,7 +17,10 @@ class DatabaseService {
     });
   }
 
-  getQuizData(String email) async {
-    return  Firestore.instance.collection("User").document(email).snapshots();
+  getQuizData() async {
+    return  Firestore.instance
+        .collection("User")
+        .document('alijonyolchiyev@gmail.com')
+        .snapshots();
   }
 }

@@ -10,7 +10,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:random_string/random_string.dart';
 import 'package:flutter_progress_button/flutter_progress_button.dart';
   File imageF;
- String  usernameF, hName, place, district, phone, whatsApp, date, emailF;
 Map<String, String> infoMap;
 class UserInformation extends StatefulWidget {
   @override
@@ -18,6 +17,7 @@ class UserInformation extends StatefulWidget {
 }
 
 class _UserInformationState extends State<UserInformation> {
+  String  usernameF, hName, place, district, phone, whatsApp, date, emailF;
   final formKey = GlobalKey<FormState>();
   final primaryColor = const Color(0xFF75A2EA);
   DatabaseService databaseService = new DatabaseService();
