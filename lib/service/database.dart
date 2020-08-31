@@ -16,7 +16,8 @@ class DatabaseService {
       print(e);
     });
   }
-  getCoinData() async {
+
+  getQuizData() async {
     return  Firestore.instance.collection("User").snapshots();
   }
 }

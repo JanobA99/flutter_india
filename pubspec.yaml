@@ -39,6 +39,8 @@
     intl: ^0.16.1
     random_string: ^2.0.1
     flutter_progress_button: ^1.0.0
+    flutter_custom_clippers: ^1.1.1
+    shared_preferences: ^0.5.7
   dev_dependencies:
     flutter_test:
       sdk: flutter

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_india/main.dart';
 import 'package:flutter_india/service/auth.dart';
 import 'package:image_picker_gallery_camera/image_picker_gallery_camera.dart';
 import 'dart:io';
@@ -8,7 +9,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:random_string/random_string.dart';
 import 'package:flutter_progress_button/flutter_progress_button.dart';
-
+  File imageF;
+ String  usernameF, hName, place, district, phone, whatsApp, date, emailF;
+Map<String, String> infoMap;
 class UserInfo extends StatefulWidget {
   @override
   _UserInfoState createState() => _UserInfoState();
@@ -16,10 +19,8 @@ class UserInfo extends StatefulWidget {
 
 class _UserInfoState extends State<UserInfo> {
   final formKey = GlobalKey<FormState>();
-  String  _username, _hName, _place, _district, _phone, _whatsApp, _date, _email;
   final primaryColor = const Color(0xFF75A2EA);
   DatabaseService databaseService = new DatabaseService();
-  File _image;
   String finalDate='';
 
 
@@ -27,7 +28,7 @@ class _UserInfoState extends State<UserInfo> {
     var order = await getDate();
     setState(() {
       finalDate = DateFormat('yyyy-MM-dd').format(order);
-      _date=finalDate;
+      date=finalDate;
     });
   }
 
@@ -84,8 +85,8 @@ textField.add(Center(
     future: FirebaseAuth.instance.currentUser(),
     builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
       if (snapshot.hasData) {
-        _email=snapshot.data.email;
-        print(_email);
+        emailF=snapshot.data.email;
+        print(emailF);
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -109,7 +110,9 @@ textField.add(Center(
           fontSize: 22.0,
         ),
         decoration: buildSignUpInputDecoration("Name"),
-        onChanged: (value) => {_username = value,},
+       onSaved: (value) => usernameF=value,
+        onChanged: (value) => {
+          usernameF = value,},
       ));
       textField.add(SizedBox(
         height: 8.0,
@@ -120,7 +123,8 @@ textField.add(Center(
           fontSize: 22.0,
         ),
         decoration: buildSignUpInputDecoration("House Name"),
-        onChanged: (value) => _hName = value,
+        onChanged: (value) => hName = value,
+        onSaved: (value) => usernameF=value,
       ));
       textField.add(SizedBox(
         height: 8.0,
@@ -131,7 +135,8 @@ textField.add(Center(
           fontSize: 22.0,
         ),
         decoration: buildSignUpInputDecoration("Place"),
-        onChanged: (value) => _place = value,
+        onChanged: (value) => place = value,
+        onSaved: (value) => usernameF=value,
       ));
       textField.add(SizedBox(
         height: 8.0,
@@ -142,7 +147,8 @@ textField.add(Center(
           fontSize: 22.0,
         ),
         decoration: buildSignUpInputDecoration("District"),
-        onChanged: (value) => _district = value,
+        onChanged: (value) => district = value,
+        onSaved: (value) => usernameF=value,
       ));
       textField.add(SizedBox(
         height: 8.0,
@@ -153,7 +159,8 @@ textField.add(Center(
           fontSize: 22.0,
         ),
         decoration: buildSignUpInputDecoration("Phone Number"),
-        onChanged: (value) => _phone = value,
+        onChanged: (value) => phone = value,
+        onSaved: (value) => usernameF=value,
       ));
       textField.add(SizedBox(
         height: 8.0,
@@ -164,7 +171,8 @@ textField.add(Center(
           fontSize: 22.0,
         ),
         decoration: buildSignUpInputDecoration("Whatsapp No"),
-        onChanged: (value) => _whatsApp = value,
+        onChanged: (value) => whatsApp = value,
+        onSaved: (value) => usernameF=value,
       ));
       textField.add(SizedBox(
         height: 8.0,
@@ -197,7 +205,7 @@ textField.add(Center(
                       ),
                     );
                     setState(() {
-                      _image = image;
+                      imageF = image;
                     });
                   }
               ),
@@ -206,49 +214,50 @@ textField.add(Center(
         height: 8.0,
       ));
     textField.add(Container(
-      child: _image != null
+      child: imageF != null
           ?
-      CircleAvatar(backgroundImage: FileImage(_image), maxRadius: 30,)
-          : Container(),
+      CircleAvatar(backgroundImage: FileImage(imageF), maxRadius: 30,)
+          : Container(child: Text("No image"),),
     ));
     textField.add(SizedBox(
       height: 8.0,
     ));
     textField.add(
       ProgressButton(
-        defaultWidget: const Text('I am a button'),
+        defaultWidget: const Text('Confirm'),
         progressWidget: const CircularProgressIndicator(),
         width: 196,
         height: 40,
         onPressed: () async {
-            print(_username);
-            print(_phone);
-            print(_email);
-            final form = formKey.currentState;
+          final form = formKey.currentState;
+          if (imageF != null) {
             if (form.validate()) {
               StorageReference firebaseStorageRef = FirebaseStorage.instance
                   .ref()
                   .child("blogListImage")
                   .child("${randomAlphaNumeric(9)}.png");
               final StorageUploadTask task = firebaseStorageRef.putFile(
-                  _image);
+                  imageF);
 
               var downloadUrl = await (await task.onComplete).ref
                   .getDownloadURL();
               print("this is url $downloadUrl");
-              Map<String, String> infoMap = {
-                "Name": _username,
-                "House Name": _hName,
-                "Place": _place,
-                "District": _district,
-                "Phone Number": _phone,
-                "WhatsApp": _whatsApp,
-                "Date of Birth": _date,
+              infoMap = {
+                "Name": usernameF,
+                "House Name": hName,
+                "Place": place,
+                "District": district,
+                "Phone Number": phone,
+                "WhatsApp": whatsApp,
+                "Date of Birth": date,
                 "Image Url": downloadUrl,
               };
-              await databaseService.addInfoData(infoMap, _email);
-              Navigator.of(context).pushReplacementNamed('/home');
+              await databaseService.addInfoData(infoMap, emailF).then((value) {
+
+              });
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home() ));
             }
+          }
         }
       )
       );
