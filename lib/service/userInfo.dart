@@ -12,12 +12,12 @@ import 'package:flutter_progress_button/flutter_progress_button.dart';
   File imageF;
  String  usernameF, hName, place, district, phone, whatsApp, date, emailF;
 Map<String, String> infoMap;
-class UserInfo extends StatefulWidget {
+class UserInformation extends StatefulWidget {
   @override
-  _UserInfoState createState() => _UserInfoState();
+  _UserInformationState createState() => _UserInformationState();
 }
 
-class _UserInfoState extends State<UserInfo> {
+class _UserInformationState extends State<UserInformation> {
   final formKey = GlobalKey<FormState>();
   final primaryColor = const Color(0xFF75A2EA);
   DatabaseService databaseService = new DatabaseService();

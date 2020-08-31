@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_india/service/auth.dart';
 import 'package:flutter_india/service/provider_widget.dart';
@@ -35,7 +37,7 @@ class MyApp extends StatelessWidget {
           '/convertUser': (BuildContext context) => SignUpView(
                 authFormType: AuthFormType.convert,
               ),
-          '/userInfo' : (BuildContext context) => UserInfo()
+          '/userInfo' : (BuildContext context) => UserInformation()
         },
       ),
     );
@@ -69,7 +71,8 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    databaseService.getQuizData().then((val) {
+    print(emailF);
+    databaseService.getQuizData(emailF).then((val) {
       setState(() {
         quizStream = val;
       });
@@ -130,56 +133,55 @@ class _HomeState extends State<Home> {
           child: StreamBuilder(
                 stream: quizStream,
                 builder: (context, snapshot) {
-    return snapshot.data == null
-    ? Container()
+    return snapshot.data == null ? Container()
         : SingleChildScrollView(
-    child: Column(
-    children: <Widget>[
-    Container(
-    alignment: Alignment.centerRight,
-    child: IconButton(
-    icon: Icon(
-    Icons.power_settings_new,
-    color: active,
-    ),
-    onPressed: () {
-    Navigator.pop(context);
-    },
-    ),
-    ),
-    Container(
-    height: 90,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-    shape: BoxShape.circle,
-    gradient: LinearGradient(
-    colors: [Colors.orange, Colors.deepOrange])),
-    child: CircleAvatar(
-    radius: 40,
-    backgroundImage: imageF!=null ? FileImage(imageF) : NetworkImage("https://www.publicdomainpictures.net/pictures/270000/velka/avatar-people-person-business-.jpg"),
-    ),
-    ),
-    SizedBox(height: 5.0),
-    Text(
-      "House Name: ${snapshot.data.documents[9].data["House Name"]}",
-    style: TextStyle(
-    color: Colors.black,
-    fontSize: 18.0,
-    fontWeight: FontWeight.w600),
-    ),
-    SizedBox(height: 30.0),
-    _buildRow(Icons.home,  "House Name: ${snapshot.data.documents[9].data["House Name"]}"),
-    _buildDivider(),
-    _buildRow(Icons.place, "Place: ${snapshot.data.documents[9].data["House Name"]}"),
-    _buildDivider(),
-    _buildRow(Icons.place, "District: ${snapshot.data.documents[9].data["House Name"]}"),
-    _buildDivider(),
-    _buildRow(Icons.phone_android, "Phone Number: ${snapshot.data.documents[9].data["House Name"]}"),
-    _buildDivider(),
-    _buildRow(Icons.phone, "WhatsApp: ${snapshot.data.documents[9].data["House Name"]}"),
-    _buildDivider(),
-    _buildRow(Icons.date_range, "Date of Birth: ${snapshot.data.documents[9].data["House Name"]}"),
-    _buildDivider(),
+             child: Column(
+             children: <Widget>[
+             Container(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    icon: Icon(
+                     Icons.power_settings_new,
+                        color: active,
+                     ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                 },
+                 ),
+                 ),
+                    Container(
+                       height: 90,
+                             alignment: Alignment.center,
+                         decoration: BoxDecoration(
+                       shape: BoxShape.circle,
+                         gradient: LinearGradient(
+                        colors: [Colors.orange, Colors.deepOrange])),
+                       child: CircleAvatar(
+                            radius: 40,
+                             backgroundImage: imageF!=null ? FileImage(imageF) : NetworkImage("https://www.publicdomainpictures.net/pictures/270000/velka/avatar-people-person-business-.jpg"),
+                                       ),
+                                      ),
+                                        SizedBox(height: 5.0),
+                                                Text(
+                               "House Name: ${snapshot.data["House Name"]}",
+                                 style: TextStyle(
+                                color: Colors.black,
+                            fontSize: 18.0,
+                              fontWeight: FontWeight.w600),
+                                ),
+                SizedBox(height: 30.0),
+                    _buildRow(Icons.home,  "House Name: ${snapshot.data["House Name"]}",),
+                          _buildDivider(),
+                               _buildRow(Icons.place, "Place: ${snapshot.data["House Name"]}",),
+                  _buildDivider(),
+                         _buildRow(Icons.place, "District: ${snapshot.data["House Name"]}",),
+                         _buildDivider(),
+                         _buildRow(Icons.phone_android, "Phone Number:${snapshot.data["House Name"]}",),
+                       _buildDivider(),
+                          _buildRow(Icons.phone, "WhatsApp:${snapshot.data["House Name"]}",),
+                      _buildDivider(),
+                              _buildRow(Icons.date_range, "Date of Birth: ${snapshot.data["House Name"]}"),
+                              _buildDivider(),
     ],
     ),
     );

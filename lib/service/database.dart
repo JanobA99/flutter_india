@@ -17,7 +17,7 @@ class DatabaseService {
     });
   }
 
-  getQuizData() async {
-    return  Firestore.instance.collection("User").snapshots();
+  getQuizData(String email) async {
+    return  Firestore.instance.collection("User").document(email).snapshots();
   }
 }
